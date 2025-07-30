@@ -1,0 +1,83 @@
+{
+  "name": "keyboard-cursor-color",
+  "displayName": "Keyboard Cursor Color",
+  "description": "Changes cursor color based on keyboard layout. Now you can see which layout is active before you start typing!",
+  "publisher": "SergeiKhrykov",
+  "repository": {
+    "url": "https://github.com/sergey-khrykov/keyboard-cursor-color",
+    "directory": "keyboard-cursor-color"
+  },
+  "version": "0.0.6",
+  "engines": {
+    "vscode": "^1.68.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:keyboardCursorColor.toggle",
+    "onCommand:keyboardCursorColor.reset"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Keyboard Cursor Color",
+      "properties": {
+        "keyboardCursorColor.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable keyboard cursor color changes"
+        },
+        "keyboardCursorColor.layouts": {
+          "type": "object",
+          "default": {
+            "en-US": "#007ACC",
+            "ru": "#FF0000",
+            "de": "#00FF00",
+            "fr": "#0000FF"
+          },
+          "description": "Cursor colors for different keyboard layouts"
+        },
+        "keyboardCursorColor.monitoringIntervalMs": {
+          "type": "number",
+          "default": 250,
+          "minimum": 250,
+          "description": "Polling interval in milliseconds for checking keyboard layout changes. Lower values update faster but use more resources."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "keyboardCursorColor.toggle",
+        "title": "Toggle Keyboard Cursor Color"
+      },
+      {
+        "command": "keyboardCursorColor.reset",
+        "title": "Reset Cursor Color"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.68.0",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "@vscode/test-electron": "^2.1.3",
+    "eslint": "^8.16.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.0.0",
+    "typescript": "^4.7.2"
+  }
+} 
