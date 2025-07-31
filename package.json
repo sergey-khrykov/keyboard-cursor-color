@@ -7,7 +7,7 @@
     "url": "https://github.com/sergey-khrykov/keyboard-cursor-color",
     "directory": "keyboard-cursor-color"
   },
-  "version": "0.0.6",
+  "version": "0.0.7",
   "engines": {
     "vscode": "^1.68.0"
   },
@@ -44,6 +44,11 @@
           "default": 250,
           "minimum": 250,
           "description": "Polling interval in milliseconds for checking keyboard layout changes. Lower values update faster but use more resources."
+        },
+        "keyboardCursorColor.terminalAndOtherWindows": {
+          "type": "boolean",
+          "default": true,
+          "description": "Also change cursor color in terminal and other windows (where supported)."
         }
       }
     },

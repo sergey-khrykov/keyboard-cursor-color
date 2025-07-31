@@ -20,7 +20,10 @@ class KeyboardCursorColorManager {
     );
   }
   private originalCursorColor: string | undefined;
+  private originalTerminalCursorForeground: string | undefined;
+  private originalTerminalCursorBackground: string | undefined;
   private isEnabled: boolean = true;
+  private changeTerminalAndOtherWindows: boolean = true;
   private layouts: KeyboardLayout = {};
   private statusBarItem: vscode.StatusBarItem;
   private monitoringInterval: any;
@@ -35,12 +38,15 @@ class KeyboardCursorColorManager {
 
   async initialize(): Promise<void> {
     try {
-      // Store original cursor color
+      // Store original cursor and terminal cursor colors
       const config = vscode.workspace.getConfiguration('workbench.colorCustomizations');
       this.originalCursorColor = config.get('editorCursor.foreground');
+      this.originalTerminalCursorForeground = config.get('terminalCursor.foreground');
+      this.originalTerminalCursorBackground = config.get('terminalCursor.background');
 
       // Load configuration
       const extensionConfig = vscode.workspace.getConfiguration('keyboardCursorColor');
+
       this.isEnabled = extensionConfig.get('enabled', true);
       this.layouts = extensionConfig.get('layouts', {
         'en-US': '#007ACC',
@@ -49,6 +55,7 @@ class KeyboardCursorColorManager {
         'fr': '#0000FF'
       });
       this.monitoringIntervalMs = extensionConfig.get('monitoringIntervalMs', 250);
+      this.changeTerminalAndOtherWindows = extensionConfig.get('terminalAndOtherWindows', true);
 
       if (this.isEnabled) {
         await this.updateCursorColor();
@@ -157,10 +164,15 @@ class KeyboardCursorColorManager {
 
       console.log(`[KeyboardCursorColor] Detected layout: ${currentLayout}, color: ${color}`);
 
+
       // Read the entire color customizations object
       const config = vscode.workspace.getConfiguration();
       const colorCustomizations = config.get<any>('workbench.colorCustomizations') || {};
       colorCustomizations['editorCursor.foreground'] = color;
+      if (this.changeTerminalAndOtherWindows) {
+        colorCustomizations['terminalCursor.foreground'] = color;
+        colorCustomizations['terminalCursor.background'] = '#ffffff';
+      }
       await config.update('workbench.colorCustomizations', colorCustomizations, vscode.ConfigurationTarget.Global);
 
       this.updateStatusBar(currentLayout);
@@ -200,9 +212,11 @@ class KeyboardCursorColorManager {
     vscode.workspace.onDidChangeConfiguration(async (event: vscode.ConfigurationChangeEvent) => {
       if (event.affectsConfiguration('keyboardCursorColor')) {
         const extensionConfig = vscode.workspace.getConfiguration('keyboardCursorColor');
+
         this.isEnabled = extensionConfig.get('enabled', true);
         this.layouts = extensionConfig.get('layouts', this.layouts);
         this.monitoringIntervalMs = extensionConfig.get('monitoringIntervalMs', 250);
+        this.changeTerminalAndOtherWindows = extensionConfig.get('terminalAndOtherWindows', true);
 
         if (this.isEnabled) {
           await this.updateCursorColor();
@@ -224,10 +238,24 @@ class KeyboardCursorColorManager {
     try {
       const config = vscode.workspace.getConfiguration();
       const colorCustomizations = config.get<any>('workbench.colorCustomizations') || {};
+      // Restore editor cursor color
       if (this.originalCursorColor !== undefined) {
         colorCustomizations['editorCursor.foreground'] = this.originalCursorColor;
       } else {
         delete colorCustomizations['editorCursor.foreground'];
+      }
+      // Restore terminal cursor colors if enabled
+      if (this.changeTerminalAndOtherWindows) {
+        if (this.originalTerminalCursorForeground !== undefined) {
+          colorCustomizations['terminalCursor.foreground'] = this.originalTerminalCursorForeground;
+        } else {
+          delete colorCustomizations['terminalCursor.foreground'];
+        }
+        if (this.originalTerminalCursorBackground !== undefined) {
+          colorCustomizations['terminalCursor.background'] = this.originalTerminalCursorBackground;
+        } else {
+          delete colorCustomizations['terminalCursor.background'];
+        }
       }
       await config.update('workbench.colorCustomizations', colorCustomizations, vscode.ConfigurationTarget.Global);
     } catch (error) {
