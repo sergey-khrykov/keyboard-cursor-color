@@ -7,7 +7,8 @@
     "url": "https://github.com/sergey-khrykov/keyboard-cursor-color",
     "directory": "keyboard-cursor-color"
   },
-  "version": "0.0.7",
+  "version": "0.0.8",
+  "icon": "icon.png",
   "engines": {
     "vscode": "^1.68.0"
   },
